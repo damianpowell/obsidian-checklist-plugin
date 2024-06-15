@@ -7,6 +7,7 @@ export interface TodoSettings {
   todoPageName: string
   showChecked: boolean
   showOther: boolean
+  filterFullyComplete: boolean
   showAllTodos: boolean
   autoRefresh: boolean
   groupBy: GroupByType
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: TodoSettings = {
   todoPageName: 'todo',
   showChecked: false,
   showOther: false,
+  filterFullyComplete: false,
   showAllTodos: false,
   autoRefresh: true,
   subGroups: false,
@@ -86,7 +88,18 @@ export class TodoSettingTab extends PluginSettingTab {
       })
 
     new Setting(this.containerEl)
+      .setName('Hide Fully Complete Lists?')
+      .setDesc('Only makes sense if Show Completed is on...')
+      .addToggle(toggle => {
+        toggle.setValue(this.plugin.getSettingValue('filterFullyComplete'))
+        toggle.onChange(async value => {
+          await this.plugin.updateSettings({filterFullyComplete: value})
+        })
+      })
+
+    new Setting(this.containerEl)
       .setName('Show Other Statuses?')
+      .setDesc('Only configured for in progress currently.')
       .addToggle(toggle => {
         toggle.setValue(this.plugin.getSettingValue('showOther'))
         toggle.onChange(async value => {

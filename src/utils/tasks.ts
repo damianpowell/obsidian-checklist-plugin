@@ -43,6 +43,7 @@ import type {TodoItem, TagMeta, FileInfo} from 'src/_types'
  * @param includeFiles The pattern of files to include in the search for todos.
  * @param showChecked Whether the user wants to show completed todos in the plugin's UI.
  * @param showOther Whether the user wants to show other statuses in the plugin's UI.
+ * @param filterFullyComplete Whether the fully completed lists are filtered out.
  * @param lastRerender Timestamp of the last time we re-rendered the checklist.
  * @returns A map containing each {@link TFile file} that was updated, and the {@link TodoItem todos} in that file.
  * If there are no todos in a file, that file will still be present in the map, but the value for its entry will be an
@@ -56,6 +57,7 @@ export const parseTodos = async (
   includeFiles: string,
   showChecked: boolean,
   showOther: boolean,
+  filterFullyComplete: boolean,
   showAllTodos: boolean,
   lastRerender: number,
 ): Promise<Map<TFile, TodoItem[]>> => {
@@ -107,7 +109,7 @@ export const parseTodos = async (
       todos = todos.filter(todo => todo.checked != 'x')
     }
     if (!showOther) {
-      todos = todos.filter(todo => todo.checked != ' ' && todo.checked != 'x')
+      todos = todos.filter(todo => todo.checked == ' ' || todo.checked == 'x')
     }
     todosForUpdatedFiles.set(fileInfo.file, todos)
   }
@@ -115,16 +117,31 @@ export const parseTodos = async (
   return todosForUpdatedFiles
 }
 
-export const get_next_status = (status: string) => {
-  switch (status) {
-    case ' ': return '/';
-    case '/': return 'x';
-    case 'x': return ' ';
-    default: return ' ';
+export const get_next_status = (status: string, showOther: boolean) => {
+  if (showOther) {
+    switch (status) {
+      case ' ':
+        return '/';
+      case '/':
+        return 'x';
+      case 'x':
+        return ' ';
+      default:
+        return ' ';
+    }
+  } else {
+    switch (status) {
+      case ' ':
+        return 'x';
+      case 'x':
+        return ' ';
+      default:
+        return ' ';
+    }
   }
 }
 
-export const toggleTodoItem = async (item: TodoItem, app: App) => {
+export const toggleTodoItem = async (item: TodoItem, app: App, showOther: boolean) => {
   const file = getFileFromPath(app.vault, item.filePath)
   if (!file) return
   const currentFileContents = await app.vault.read(file)
@@ -133,10 +150,10 @@ export const toggleTodoItem = async (item: TodoItem, app: App) => {
   const newData = setTodoStatusAtLineTo(
     currentFileLines,
     item.line,
-    get_next_status(item.checked),
+    get_next_status(item.checked, showOther),
   )
   app.vault.modify(file, newData)
-  item.checked = get_next_status(item.checked)
+  item.checked = get_next_status(item.checked, showOther)
 }
 
 const findAllTodosInFile = (file: FileInfo): TodoItem[] => {

@@ -9,6 +9,7 @@
   export let group: TodoGroup
   export let isCollapsed: boolean
   export let lookAndFeel: LookAndFeel
+  export let showOther: ShowOther
   export let app: App
   export let onToggle: (id: string) => void
 
@@ -43,7 +44,7 @@
   {#if !isCollapsed}
     <ul>
       {#each group.todos as item}
-        <ChecklistItem {item} {lookAndFeel} {app} />
+        <ChecklistItem {item} {lookAndFeel} {showOther} {app} />
       {/each}
     </ul>
   {/if}

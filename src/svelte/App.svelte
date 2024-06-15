@@ -1,22 +1,19 @@
 <script lang="ts">
   import type { App } from "obsidian"
-  import type { LookAndFeel, TodoGroup } from "src/_types"
+  import type { LookAndFeel, TodoGroup, ShowOther } from "src/_types"
   import type { TodoSettings } from "src/settings"
   import ChecklistGroup from "./ChecklistGroup.svelte"
   import Header from "./Header.svelte"
 
   export let todoTags: string[]
   export let lookAndFeel: LookAndFeel
+  export let showOther: ShowOther
   export let _collapsedSections: string[]
   export let _hiddenTags: string[]
   export let updateSetting: (updates: Partial<TodoSettings>) => Promise<void>
   export let onSearch: (str: string) => void
   export let app: App
   export let todoGroups: TodoGroup[] = []
-
-  const todoGroups = todoGroups.filter(group =>
-                                !group.todos.every(todo => todo.checked === 'x')
-                              );
 
   const visibleTags = todoTags.filter((t) => !_hiddenTags.includes(t))
 
@@ -53,11 +50,14 @@
         {/if}
       </div>
     {:else}
-      {#each todoGroups as group}
+      {#each todoGroups.filter(group =>
+                                             !group.todos.every(todo => todo.checked === 'x')
+                                           ) as group}
         <ChecklistGroup
           {group}
           {app}
           {lookAndFeel}
+          {showOther}
           isCollapsed={_collapsedSections.includes(group.id)}
           onToggle={toggleGroup}
         />

@@ -7,12 +7,13 @@
 
   export let item: TodoItem
   export let lookAndFeel: LookAndFeel
+  export let showOther: ShowOther
   export let app: App
 
   let contentDiv: HTMLDivElement
 
   const toggleItem = async (item: TodoItem) => {
-    toggleTodoItem(item, app)
+    toggleTodoItem(item, app, showOther)
   }
 
   const handleClick = (ev: MouseEvent, item?: TodoItem) => {
