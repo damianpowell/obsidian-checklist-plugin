@@ -6,6 +6,7 @@ import type {GroupByType, LookAndFeel, SortDirection} from './_types'
 export interface TodoSettings {
   todoPageName: string
   showChecked: boolean
+  showOther: boolean
   showAllTodos: boolean
   autoRefresh: boolean
   groupBy: GroupByType
@@ -22,6 +23,7 @@ export interface TodoSettings {
 export const DEFAULT_SETTINGS: TodoSettings = {
   todoPageName: 'todo',
   showChecked: false,
+  showOther: false,
   showAllTodos: false,
   autoRefresh: true,
   subGroups: false,
@@ -80,6 +82,15 @@ export class TodoSettingTab extends PluginSettingTab {
         toggle.setValue(this.plugin.getSettingValue('showChecked'))
         toggle.onChange(async value => {
           await this.plugin.updateSettings({showChecked: value})
+        })
+      })
+
+    new Setting(this.containerEl)
+      .setName('Show Other Statuses?')
+      .addToggle(toggle => {
+        toggle.setValue(this.plugin.getSettingValue('showOther'))
+        toggle.onChange(async value => {
+          await this.plugin.updateSettings({showOther: value})
         })
       })
 

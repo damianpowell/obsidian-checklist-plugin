@@ -39,10 +39,10 @@ export const mapLinkMeta = (linkMeta: LinkMeta[]) => {
   return map
 }
 
-export const setLineTo = (line: string, setTo: boolean) =>
+export const setLineTo = (line: string, setTo: string) =>
   line.replace(
     /^((\s|\>)*([\-\*]|[0-9]+\.)\s\[)([^\]]+)(\].*$)/,
-    `$1${setTo ? 'x' : ' '}$5`,
+    `$1${setTo}$5`,
   )
 
 export const getAllLinesFromFile = (cache: string) => cache.split(/\r?\n/)
@@ -54,8 +54,9 @@ export const extractTextFromTodoLine = (line: string) =>
   /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(.{1})\]\s{1,4}(\S{1}.*)$/.exec(line)?.[4]
 export const getIndentationSpacesFromTodoLine = (line: string) =>
   /^(\s*)([\-\*]|[0-9]+\.)\s\[(.{1})\]\s{1,4}(\S+)/.exec(line)?.[1]?.length ?? 0
-export const todoLineIsChecked = (line: string) =>
-  /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(\S{1})\]/.test(line)
+export const todoLineIsChecked = (line: string) => {
+ return /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(.{1})\]/.exec(line)?.[3];
+}
 export const getFileLabelFromName = (filename: string) =>
   /^(.+)\.md$/.exec(filename)?.[1]
 

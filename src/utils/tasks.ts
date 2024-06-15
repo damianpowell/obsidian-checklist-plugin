@@ -42,6 +42,7 @@ import type {TodoItem, TagMeta, FileInfo} from 'src/_types'
  * @param vault The Obsidian {@link Vault} object.
  * @param includeFiles The pattern of files to include in the search for todos.
  * @param showChecked Whether the user wants to show completed todos in the plugin's UI.
+ * @param showOther Whether the user wants to show other statuses in the plugin's UI.
  * @param lastRerender Timestamp of the last time we re-rendered the checklist.
  * @returns A map containing each {@link TFile file} that was updated, and the {@link TodoItem todos} in that file.
  * If there are no todos in a file, that file will still be present in the map, but the value for its entry will be an
@@ -54,6 +55,7 @@ export const parseTodos = async (
   vault: Vault,
   includeFiles: string,
   showChecked: boolean,
+  showOther: boolean,
   showAllTodos: boolean,
   lastRerender: number,
 ): Promise<Map<TFile, TodoItem[]>> => {
@@ -102,12 +104,24 @@ export const parseTodos = async (
   for (const fileInfo of filesWithCache) {
     let todos = findAllTodosInFile(fileInfo)
     if (!showChecked) {
-      todos = todos.filter(todo => !todo.checked)
+      todos = todos.filter(todo => todo.checked != 'x')
+    }
+    if (!showOther) {
+      todos = todos.filter(todo => todo.checked != ' ' && todo.checked != 'x')
     }
     todosForUpdatedFiles.set(fileInfo.file, todos)
   }
 
   return todosForUpdatedFiles
+}
+
+export const get_next_status = (status: string) => {
+  switch (status) {
+    case ' ': return '/';
+    case '/': return 'x';
+    case 'x': return ' ';
+    default: return ' ';
+  }
 }
 
 export const toggleTodoItem = async (item: TodoItem, app: App) => {
@@ -119,10 +133,10 @@ export const toggleTodoItem = async (item: TodoItem, app: App) => {
   const newData = setTodoStatusAtLineTo(
     currentFileLines,
     item.line,
-    !item.checked,
+    get_next_status(item.checked),
   )
   app.vault.modify(file, newData)
-  item.checked = !item.checked
+  item.checked = get_next_status(item.checked)
 }
 
 const findAllTodosInFile = (file: FileInfo): TodoItem[] => {
@@ -222,7 +236,7 @@ const formTodo = (
 const setTodoStatusAtLineTo = (
   fileLines: string[],
   line: number,
-  setTo: boolean,
+  setTo: string,
 ) => {
   fileLines[line] = setLineTo(fileLines[line], setTo)
   return combineFileLines(fileLines)

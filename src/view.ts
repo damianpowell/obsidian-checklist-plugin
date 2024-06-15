@@ -116,6 +116,7 @@ export default class TodoListView extends ItemView {
       this.app.vault,
       this.plugin.getSettingValue('includeFiles'),
       this.plugin.getSettingValue('showChecked'),
+      this.plugin.getSettingValue('showOther'),
       this.plugin.getSettingValue('showAllTodos'),
       this.lastRerender,
     )

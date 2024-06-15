@@ -14,6 +14,10 @@
   export let app: App
   export let todoGroups: TodoGroup[] = []
 
+  const todoGroups = todoGroups.filter(group =>
+                                !group.todos.every(todo => todo.checked === 'x')
+                              );
+
   const visibleTags = todoTags.filter((t) => !_hiddenTags.includes(t))
 
   const toggleGroup = (id: string) => {
