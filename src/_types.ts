@@ -54,6 +54,7 @@ export type GroupByType = 'page' | 'tag'
 export type SortDirection = 'new->old' | 'old->new' | 'a->z' | 'z->a'
 export type LookAndFeel = 'compact' | 'classic'
 export type ShowOther = boolean
+export type FilterFullyComplete = boolean
 
 export type Icon = 'chevron' | 'settings'
 

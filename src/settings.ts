@@ -1,13 +1,13 @@
 import {App, PluginSettingTab, Setting} from 'obsidian'
 
 import type TodoPlugin from './main'
-import type {GroupByType, LookAndFeel, SortDirection} from './_types'
+import type {FilterFullyComplete, GroupByType, LookAndFeel, ShowOther, SortDirection} from './_types'
 
 export interface TodoSettings {
   todoPageName: string
   showChecked: boolean
-  showOther: boolean
-  filterFullyComplete: boolean
+  showOther: ShowOther
+  filterFullyComplete: FilterFullyComplete
   showAllTodos: boolean
   autoRefresh: boolean
   groupBy: GroupByType

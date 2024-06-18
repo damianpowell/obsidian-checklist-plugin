@@ -10,7 +10,8 @@ import type {TodoGroup, TodoItem} from './_types'
 export default class TodoListView extends ItemView {
   private _app: App
   private lastRerender = 0
-  private groupedItems: TodoGroup[] = []
+  private groupedItems: TodoGroup[]
+  private fullyCompleteGroups: number = 0
   private itemsByFile = new Map<string, TodoItem[]>()
   private searchTerm = ''
 
@@ -95,6 +96,7 @@ export default class TodoListView extends ItemView {
       todoTags: this.todoTagArray,
       lookAndFeel: this.plugin.getSettingValue('lookAndFeel'),
       showOther: this.plugin.getSettingValue('showOther'),
+      fullyCompleteGroups: this.fullyCompleteGroups,
       subGroups: this.plugin.getSettingValue('subGroups'),
       _collapsedSections: this.plugin.getSettingValue('_collapsedSections'),
       _hiddenTags: this.plugin.getSettingValue('_hiddenTags'),
@@ -132,14 +134,18 @@ export default class TodoListView extends ItemView {
     const searchedItems = flattenedItems.filter(e =>
       e.originalText.toLowerCase().includes(this.searchTerm.toLowerCase()),
     )
-    this.groupedItems = groupTodos(
+    const [groupedItems, fullyCompleteGroups] = groupTodos(
       searchedItems,
       this.plugin.getSettingValue('groupBy'),
       this.plugin.getSettingValue('sortDirectionGroups'),
       this.plugin.getSettingValue('sortDirectionItems'),
       this.plugin.getSettingValue('subGroups'),
       this.plugin.getSettingValue('sortDirectionSubGroups'),
+      this.plugin.getSettingValue('filterFullyComplete'),
     )
+
+    this.groupedItems = groupedItems;
+    this.fullyCompleteGroups = fullyCompleteGroups;
   }
 
   private renderView() {

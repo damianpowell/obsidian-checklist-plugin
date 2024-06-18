@@ -8,6 +8,7 @@
   export let todoTags: string[]
   export let lookAndFeel: LookAndFeel
   export let showOther: ShowOther
+  export let fullyCompleteGroups: number
   export let _collapsedSections: string[]
   export let _hiddenTags: string[]
   export let updateSetting: (updates: Partial<TodoSettings>) => Promise<void>
@@ -50,18 +51,21 @@
         {/if}
       </div>
     {:else}
-      {#each todoGroups.filter(group =>
-                                             !group.todos.every(todo => todo.checked === 'x')
-                                           ) as group}
-        <ChecklistGroup
-          {group}
-          {app}
-          {lookAndFeel}
-          {showOther}
-          isCollapsed={_collapsedSections.includes(group.id)}
-          onToggle={toggleGroup}
-        />
-      {/each}
+        {#each todoGroups as group}
+            <ChecklistGroup
+              {group}
+              {app}
+              {lookAndFeel}
+              {showOther}
+              isCollapsed={_collapsedSections.includes(group.id)}
+              onToggle={toggleGroup}
+            />
+         {/each}
+    {/if}
+    {#if fullyCompleteGroups !== 0}
+        <div class="container">
+            <span><i>Filtered {fullyCompleteGroups} fully complete list{fullyCompleteGroups === 1 ? '' : 's'}.</i></span>
+        </div>
     {/if}
 </div>
 

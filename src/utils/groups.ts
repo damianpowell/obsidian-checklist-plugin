@@ -1,6 +1,6 @@
 import {classifyString, sortGenericItemsInplace} from './helpers'
 
-import type {TodoItem, TodoGroup, GroupByType, SortDirection} from 'src/_types'
+import type {TodoItem, TodoGroup, GroupByType, SortDirection, FilterFullyComplete} from 'src/_types'
 export const groupTodos = (
   items: TodoItem[],
   groupBy: GroupByType,
@@ -8,7 +8,8 @@ export const groupTodos = (
   sortItems: SortDirection,
   subGroups: boolean,
   subGroupSort: SortDirection,
-): TodoGroup[] => {
+  filterFullyComplete: FilterFullyComplete,
+): [TodoGroup[], number] => {
   const groups: TodoGroup[] = []
   for (const item of items) {
     const itemKey =
@@ -68,15 +69,24 @@ export const groupTodos = (
         'fileCreatedTs',
       )
   else
-    for (const g of nonEmptyGroups)
-      g.groups = groupTodos(
+    for (const g of nonEmptyGroups) {
+      const [groups, fullyCompleteGroups] = groupTodos(
         g.todos,
         groupBy === 'page' ? 'tag' : 'page',
         subGroupSort,
         sortItems,
         false,
         null,
+        filterFullyComplete,
       )
 
-  return nonEmptyGroups
+      g.groups = groups;
+    }
+
+  if (filterFullyComplete) {
+    const filtered = nonEmptyGroups.filter(group => !group.todos.every(todo => todo.checked === 'x'))
+    return [filtered, nonEmptyGroups.length - filtered.length]
+  }
+
+  return [nonEmptyGroups, 0]
 }
